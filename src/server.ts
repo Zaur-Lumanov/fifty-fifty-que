@@ -3,7 +3,7 @@ import {Context, Telegraf} from "telegraf";
 import {createHmac} from "crypto";
 import db from "./db";
 
-const {CB_API_CONFIRM_CODE, QUE_MERCHANT_KEY} = process.env;
+const {CB_API_CONFIRM_CODE, QUE_MERCHANT_KEY, PORT} = process.env;
 
 const app = express();
 
@@ -46,5 +46,5 @@ export const server = (bot: Telegraf<Context>) => {
     res.sendStatus(200);
   });
 
-  app.listen(8083);
+  app.listen(+PORT! || 8083);
 }
