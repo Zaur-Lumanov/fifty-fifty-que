@@ -6,6 +6,7 @@ import {ObjectId, WithId} from "mongodb";
 import db from "./db";
 import {filterMV2, getPluralize, getTopExtra, getTopText, pluralize, Status} from "./utils";
 import {ExtraEditMessageText, ExtraReplyMessage} from "telegraf/typings/telegram-types";
+import {locales} from "./locales";
 
 const {BOT_TOKEN} = process.env;
 
@@ -30,7 +31,7 @@ const extra = {
 
 
 bot.start((ctx) => {
-  ctx.reply('Выберите сумму', extra);
+  ctx.reply(locales(ctx.from.language_code).main, extra);
 });
 
 bot.command('dice', (ctx) => {
@@ -51,7 +52,8 @@ bot.action(/^add_que:(\d+)$/, async (ctx) => {
   try {
     const order = await createOrder(amount);
 
-    ctx.reply(`Пополните счёт на ${amount} $QUE`, {
+    ctx.reply(locales(ctx.update.callback_query.from.language_code).needPay
+      .replace('%coins%', amount.toString()), {
       reply_markup: {
         inline_keyboard: [[{text: 'Оплатить', url: order.link}]],
       },
@@ -60,6 +62,7 @@ bot.action(/^add_que:(\d+)$/, async (ctx) => {
 });
 
 bot.action(/^dice:(\w+)$/, async (ctx) => {
+  const lang = ctx.update.callback_query.from.language_code;
   const orderId = ctx.match[1];
   await ctx.deleteMessage();
   const result = await ctx.sendDice();
@@ -83,13 +86,20 @@ bot.action(/^dice:(\w+)$/, async (ctx) => {
 
   setTimeout(async () => {
     if (result.dice.value > 3) {
-      ctx.reply(`Вы выиграли ${order.amount} $QUE!\n\nВыберите новую ставку:`, extra);
+      const amount = order.amount * 2;
 
-      await sendQue(order.user_id, order.amount);
+      ctx.reply(
+        locales(lang).win.replace('%coins%', amount.toString()) + '\n\n' + locales(lang).next,
+        extra
+      );
+      await sendQue(order.user_id, amount);
       await db.orders.updateOne({_id: order._id}, {$set: {status: 'win'}});
       await addUserInfo('wins');
     } else if (result.dice.value < 4) {
-      await ctx.reply(`Вы проиграли ${order.amount} $QUE :(\n\nВыберите новую ставку:`, extra);
+      ctx.reply(
+        locales(lang).lose.replace('%coins%', order.amount.toString()) + '\n\n' + locales(lang).next,
+        extra
+      );
       await db.orders.updateOne({_id: order._id}, {$set: {status: 'lose'}});
       await addUserInfo('loses');
     }

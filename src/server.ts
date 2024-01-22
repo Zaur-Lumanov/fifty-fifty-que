@@ -2,6 +2,7 @@ import express from 'express';
 import {Context, Telegraf} from "telegraf";
 import {createHmac} from "crypto";
 import db from "./db";
+import {locales} from "./locales";
 
 const {CB_API_CONFIRM_CODE, QUE_MERCHANT_KEY, PORT} = process.env;
 
@@ -31,13 +32,15 @@ export const server = (bot: Telegraf<Context>) => {
           user_id: +(req.query.user_id as string),
           amount: +(req.query.amount as string),
         });
+        const lang = (req.query.lang as string).toString();
 
         await bot.telegram.sendMessage(
           req.query.user_id as string,
-          `Пополнение на ${req.query.amount} $QUE\n\nПравила игры: от 4 до 6 – выигрыл, от 1 до 3 – проигрыш.`,
+          locales(lang).paid
+            .replace('%coins%', req.query.amount!.toString()),
           {
             reply_markup: {
-              inline_keyboard: [[{text: 'Бросить кость', callback_data: `dice:${insertedId}`}]],
+              inline_keyboard: [[{text: locales(lang).rollBtn, callback_data: `dice:${insertedId}`}]],
             },
           },
         ).catch(() => {});
