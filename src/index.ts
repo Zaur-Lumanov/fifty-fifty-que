@@ -19,7 +19,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 server(bot);
 
-const extra = {
+const extra = (lang = 'en') => ({
   reply_markup: {
     inline_keyboard: [[
       {text: '1 $QUE', callback_data: 'add_que:1'},
@@ -28,26 +28,28 @@ const extra = {
     ], [
       {text: '50 $QUE', callback_data: 'add_que:50'},
       {text: '100 $QUE', callback_data: 'add_que:100'},
-    ], [{text: 'Топ игроков', callback_data: 'top:wins'}]],
+    ], [{text: locales(lang).top, callback_data: 'top:wins'}]],
   },
-};
+});
 
 
 bot.start((ctx) => {
-  ctx.reply(locales(ctx.from.language_code).main, extra);
+  const lang = ctx.from.language_code;
+
+  ctx.reply(locales(lang).main, extra(lang));
 });
 
 bot.command('dice', (ctx) => {
-  ctx.reply('Выберите сумму', extra);
+  const lang = ctx.from.language_code;
+
+  ctx.reply(locales(lang).main, extra(lang));
 });
 
 bot.action('start', (ctx) => {
-  ctx.reply('Выберите сумму', extra);
-});
+  const lang = ctx.update.callback_query.from.language_code;
 
-// bot.on('text', (ctx) => {
-//   ctx.reply('Выберите сумму', extra);
-// });
+  ctx.reply(locales(lang).main, extra(lang));
+});
 
 bot.action(/^add_que:(\d+)$/, async (ctx) => {
   const amount = +ctx.match[1];
@@ -58,7 +60,7 @@ bot.action(/^add_que:(\d+)$/, async (ctx) => {
     ctx.reply(locales(ctx.update.callback_query.from.language_code).needPay
       .replace('%coins%', amount.toString()), {
       reply_markup: {
-        inline_keyboard: [[{text: 'Оплатить', url: order.link}]],
+        inline_keyboard: [[{text: locales(ctx.update.callback_query.from.language_code).pay, url: order.link}]],
       },
     });
   } catch (err) {}
@@ -93,7 +95,7 @@ bot.action(/^dice:(\w+)$/, async (ctx) => {
 
       ctx.reply(
         locales(lang).win.replace('%coins%', amount.toString()) + '\n\n' + locales(lang).next,
-        extra
+        extra(lang),
       );
       await sendQue(order.user_id, amount);
       await db.orders.updateOne({_id: order._id}, {$set: {status: 'win'}});
@@ -101,7 +103,7 @@ bot.action(/^dice:(\w+)$/, async (ctx) => {
     } else if (result.dice.value < 4) {
       ctx.reply(
         locales(lang).lose.replace('%coins%', order.amount.toString()) + '\n\n' + locales(lang).next,
-        extra
+        extra(lang),
       );
       await db.orders.updateOne({_id: order._id}, {$set: {status: 'lose'}});
       await addUserInfo('loses');
@@ -110,13 +112,16 @@ bot.action(/^dice:(\w+)$/, async (ctx) => {
 });
 
 bot.command('top', async  (ctx) => {
-  ctx.reply(await getTopText('wins'), getTopExtra('wins'));
+  const lang = ctx.from.language_code;
+
+  ctx.reply(await getTopText('wins', lang), getTopExtra('wins', lang));
 });
 
 bot.action(/^top:(wins|loses)/, async  (ctx) => {
+  const lang = ctx.update.callback_query.from.language_code;
   const status = ctx.match[1] as Status;
 
-  ctx.editMessageText(await getTopText(status), getTopExtra<ExtraEditMessageText>(status)).catch(() => {});
+  ctx.editMessageText(await getTopText(status, lang), getTopExtra<ExtraEditMessageText>(status, lang)).catch(() => {});
 });
 
 void bot.launch();
