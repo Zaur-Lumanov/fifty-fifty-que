@@ -10,7 +10,6 @@ const app = express();
 
 export const server = (bot: Telegraf<Context>) => {
   app.get('/', async (req, res) => {
-    console.log(req.query)
     if (req.query.action === 'confirm') {
       return res.send({"code": CB_API_CONFIRM_CODE});
     }
