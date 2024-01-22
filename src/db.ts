@@ -8,6 +8,9 @@ const db = {
   get orders() {
     return _db.collection('orders');
   },
+  get users() {
+    return _db.collection('users');
+  },
 };
 
 export default db;
