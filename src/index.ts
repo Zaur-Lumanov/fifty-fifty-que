@@ -23,7 +23,10 @@ const extra = {
   reply_markup: {
     inline_keyboard: [[
       {text: '1 $QUE', callback_data: 'add_que:1'},
+      {text: '5 $QUE', callback_data: 'add_que:5'},
       {text: '10 $QUE', callback_data: 'add_que:10'},
+    ], [
+      {text: '50 $QUE', callback_data: 'add_que:50'},
       {text: '100 $QUE', callback_data: 'add_que:100'},
     ], [{text: 'Топ игроков', callback_data: 'top:wins'}]],
   },
