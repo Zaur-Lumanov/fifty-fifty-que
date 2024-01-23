@@ -69,7 +69,7 @@ bot.action(/^add_que:(\d+)$/, async (ctx) => {
 bot.action(/^dice:(\w+)$/, async (ctx) => {
   const lang = ctx.update.callback_query.from.language_code;
   const orderId = ctx.match[1];
-  await ctx.deleteMessage();
+  await ctx.deleteMessage().catch(() => {});
   const result = await ctx.sendDice();
 
   const order = await db.orders.findOne({
