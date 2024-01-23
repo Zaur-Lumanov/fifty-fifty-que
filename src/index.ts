@@ -2,10 +2,10 @@ import 'dotenv/config';
 import {Telegraf} from 'telegraf';
 import {createOrder, sendQue} from "./que";
 import {server} from "./server";
-import {ObjectId, WithId} from "mongodb";
+import {ObjectId} from "mongodb";
 import db from "./db";
-import {filterMV2, getPluralize, getTopExtra, getTopText, pluralize, Status} from "./utils";
-import {ExtraEditMessageText, ExtraReplyMessage} from "telegraf/typings/telegram-types";
+import {getTopExtra, getTopText, Status} from "./utils";
+import {ExtraEditMessageText} from "telegraf/typings/telegram-types";
 import {locales} from "./locales";
 
 const {BOT_TOKEN} = process.env;
