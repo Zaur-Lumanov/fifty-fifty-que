@@ -69,16 +69,18 @@ bot.action(/^add_que:(\d+)$/, async (ctx) => {
 bot.action(/^dice:(\w+)$/, async (ctx) => {
   const lang = ctx.update.callback_query.from.language_code;
   const orderId = ctx.match[1];
-  await ctx.deleteMessage().catch(() => {});
-  const result = await ctx.sendDice();
 
   const order = await db.orders.findOne({
     _id: new ObjectId(orderId),
   });
 
-  if (!order) {
+  if (!order || order.started) {
     return;
   }
+
+  await db.orders.updateOne({_id: order._id}, {$set: {started: true}});
+  await ctx.deleteMessage().catch(() => {});
+  const result = await ctx.sendDice();
 
   const addUserInfo = (key: 'wins' | 'loses') =>
     db.users.updateOne({user_id: order.user_id}, {

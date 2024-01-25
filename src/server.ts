@@ -50,4 +50,4 @@ export const server = (bot: Telegraf<Context>) => {
   });
 
   app.listen(+PORT! || 8083);
-}
+};
