@@ -10,7 +10,7 @@ const localesMap = {
     paid: 'The account is replenished for %coins% $QUE.\n\n☝️🤓 Rules of the game: a roll of 1 to 3 means you lose, if a roll of 4 to 6 means you win.',
     rollBtn: '🎲 Roll the dice',
     win: '🫵 You won %coins% $QUE!',
-    lose: '🧊 Not fate, random has decided otherwise %coins% $QUE(',
+    lose: '🧊 Unlucky, random has decided otherwise. You lost %coins% $QUE.',
     next: '🎲 Will you play again? Pick your next bet:',
     pay: '💸 Pay&play',
     top: 'Top players',
